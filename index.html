@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Panel de Temperatura y Humedad Inteligente</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- 📊 Cargamos Chart.js -->
+    <style>
+        /* 🌿 Estilos generales */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(to right, #4CAF50, #8B5E3C); /* Fondo inicial */
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            transition: background 1s ease-in-out;
+        }
+
+        h1 {
+            font-size: 28px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+
+        /* 📊 Paneles del Dashboard */
+        .dashboard {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            max-width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 30%;
+            min-width: 250px;
+        }
+
+        .panel:hover {
+            transform: scale(1.05);
+        }
+
+        /* 📊 Contenedor de gráficos alineados */
+        .graficos-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            max-width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .grafico-container {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            width: 45%;
+            min-width: 350px;
+        }
+
+        /* 📋 Estilos de la tabla */
+        .tabla-container {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        table {
+            width: 60%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.2);
+            border-collapse: collapse;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+        }
+
+        td {
+            font-size: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                flex-direction: column;
+                align-items: center;
+            }
+            .panel {
+                width: 100%;
+            }
+            .graficos-container {
+                flex-direction: column;
+            }
+            .grafico-container {
+                width: 100%;
+            }
+            table {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Panel de Temperatura y Humedad Inteligente</h1>
+    <h2>Información actualizada cada 3 segundos ⏱️</h2>
+    <h3>Cambio de color de fondo dependiendo de la temperatura (¡Así que no me calientes! 😅)</h3>
+
+    <div class="dashboard">
+        <div class="panel">
+            <h2>🌡️ Temperatura</h2>
+            <p id="temp">Cargando...</p>
+        </div>
+        <div class="panel">
+            <h2>💧 Humedad</h2>
+            <p id="hum">Cargando...</p>
+        </div>
+        <div class="panel">
+            <h2>🚦 Estado del LED</h2>
+            <p id="led">Cargando...</p>
+        </div>
+    </div>
+
+    <div class="graficos-container">
+        <div class="grafico-container">
+            <h2>📈 Gráfico de Temperatura</h2>
+            <canvas id="grafico-temperatura"></canvas>
+        </div>
+        <div class="grafico-container">
+            <h2>📊 Gráfico de Humedad</h2>
+            <canvas id="grafico-humedad"></canvas>
+        </div>
+    </div>
+
+    <div class="tabla-container">
+        <table>
+            <tr>
+                <th>Rango de Temperatura</th>
+                <th>Color del LED</th>
+            </tr>
+            <tr>
+                <td>Menos de 20°C</td>
+                <td style="color: green;">🟢 Verde</td>
+            </tr>
+            <tr>
+                <td>20°C - 25°C</td>
+                <td style="color: yellow;">🟡 Amarillo</td>
+            </tr>
+            <tr>
+                <td>Más de 25°C</td>
+                <td style="color: red;">🔴 Rojo</td>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        let temperaturaData = [];
+        let humedadData = [];
+        let tiempoData = [];
+        const maxPuntos = 10;
+
+        function actualizarDatos() {
+            fetch("http://192.168.0.23")  // ⬅️ Cambia por la IP de tu ESP32
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("temp").innerHTML = "🌡️ " + data.temperatura + "°C";
+                document.getElementById("hum").innerHTML = "💧 " + data.humedad + "%";
+                document.getElementById("led").innerHTML = "🚦 " + data.led;
+
+                // 🌈 Cambio de color del fondo según la temperatura
+                if (data.temperatura < 20) {
+                    document.body.style.background = "linear-gradient(to right, #2E8B57, #1E4D2B)";
+                } else if (data.temperatura >= 20 && data.temperatura <= 25) {
+                    document.body.style.background = "linear-gradient(to right, #6B8E23, #8B5E3C)";
+                } else {
+                    document.body.style.background = "linear-gradient(to right, #CD853F, #D2691E)";
+                }
+
+                // 📊 Actualizar gráficos
+                let tiempoActual = new Date().toLocaleTimeString();
+                if (temperaturaData.length >= maxPuntos) {
+                    temperaturaData.shift();
+                    humedadData.shift();
+                    tiempoData.shift();
+                }
+                temperaturaData.push(data.temperatura);
+                humedadData.push(data.humedad);
+                tiempoData.push(tiempoActual);
+
+                temperaturaChart.update();
+                humedadChart.update();
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            let ctx1 = document.getElementById("grafico-temperatura").getContext("2d");
+            let ctx2 = document.getElementById("grafico-humedad").getContext("2d");
+
+            window.temperaturaChart = new Chart(ctx1, { type: "line", data: { labels: tiempoData, datasets: [{ label: "Temperatura (°C)", data: temperaturaData, borderColor: "red", fill: false }] } });
+            window.humedadChart = new Chart(ctx2, { type: "line", data: { labels: tiempoData, datasets: [{ label: "Humedad (%)", data: humedadData, borderColor: "blue", fill: false }] } });
+
+            setInterval(actualizarDatos, 3000);
+        });
+    </script>
+</body>
+</html>
