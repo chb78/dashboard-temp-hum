@@ -28,6 +28,6 @@ app.get("/api/data", (req, res) => {
     res.json(sensorData);
 });
 
-app.listen(port, () => {
-    console.log(`✅ API corriendo en http://localhost:${port}`);
+app.listen(PORT, () => {
+    console.log(`✅ API corriendo en http://localhost:${PORT}`);
 });
