@@ -180,7 +180,7 @@
         const maxPuntos = 10;
 
         function actualizarDatos() {
-            fetch("http://192.168.94.84")  // ⬅️ Cambia por la IP de tu ESP32
+            fetch("https://temphumled-d7g7a6d0g2ewhbar.spaincentral-01.azurewebsites.net/api/data")  // ⬅️ Cambia por la IP de tu ESP32
             .then(response => response.json())
             .then(data => {
                 document.getElementById("temp").innerHTML = "🌡️ " + data.temperatura + "°C";
