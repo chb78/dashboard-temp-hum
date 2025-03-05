@@ -180,12 +180,16 @@
         const maxPuntos = 10;
 
         function actualizarDatos() {
-            fetch("https://temphumled-d7g7a6d0g2ewhbar.spaincentral-01.azurewebsites.net/api/data")  // ⬅️ Cambia por la IP de tu ESP32
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("temp").innerHTML = "🌡️ " + data.temperatura + "°C";
-                document.getElementById("hum").innerHTML = "💧 " + data.humedad + "%";
-                document.getElementById("led").innerHTML = "🚦 " + data.led;
+         fetch("https://temphumled-d7g7a6d0g2ewhbar.spaincentral-01.azurewebsites.net/api/data")
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("temp").innerHTML = "🌡️ " + data.temperatura + "°C";
+            document.getElementById("hum").innerHTML = "💧 " + data.humedad + "%";
+            document.getElementById("led").innerHTML = "🚦 " + data.led;
+    })
+        .catch(error => console.error("❌ Error en la obtención de datos:", error));
+}
+setInterval(actualizarDatos, 3000); // Actualiza cada 3 segundos
 
                 // 🌈 Cambio de color del fondo según la temperatura
                 if (data.temperatura < 20) {
