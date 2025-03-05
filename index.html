@@ -10,7 +10,7 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background: linear-gradient(to right, #4CAF50, #8B5E3C); /* Fondo inicial */
+            background: linear-gradient(to right, #4CAF50, #8B5E3C);
             color: #fff;
             margin: 0;
             padding: 20px;
@@ -120,12 +120,10 @@
         }
     </style>
 </head>
-
 <body>
     <h1>Panel de Temperatura y Humedad Inteligente</h1>
-    <h2>Información actualizada cada 3 segundos ⏱️</h2>
-    <h3>Cambio de color de fondo dependiendo de la temperatura (¡Así que no me calientes! 😅)</h3>
-
+    <h1>Información actualizada cada 3 segundos ⏱️</h1>
+    <h2>Cambio de color dependiendo de la temperatura</h2>
     <div class="dashboard">
         <div class="panel">
             <h2>🌡️ Temperatura</h2>
@@ -177,55 +175,30 @@
         let temperaturaData = [];
         let humedadData = [];
         let tiempoData = [];
-        const maxPuntos = 10;
+        const maxPuntos = 10; 
 
         function actualizarDatos() {
-         fetch("https://temphumled-d7g7a6d0g2ewhbar.spaincentral-01.azurewebsites.net/api/data")
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById("temp").innerHTML = "🌡️ " + data.temperatura + "°C";
-            document.getElementById("hum").innerHTML = "💧 " + data.humedad + "%";
-            document.getElementById("led").innerHTML = "🚦 " + data.led;
-    })
-        .catch(error => console.error("❌ Error en la obtención de datos:", error));
-}
-setInterval(actualizarDatos, 3000); // Actualiza cada 3 segundos
+            fetch("https://temphumled-d7g7a6d0g2ewhbar.spaincentral-01.azurewebsites.net/api/data")  // ⬅️ Cambia por la URL de tu API en Azure
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("temp").innerHTML = "🌡️ " + data.temperatura + "°C";
+                document.getElementById("hum").innerHTML = "💧 " + data.humedad + "%";
+                document.getElementById("led").innerHTML = "🚦 " + data.led;
 
-                // 🌈 Cambio de color del fondo según la temperatura
-                if (data.temperatura < 20) {
-                    document.body.style.background = "linear-gradient(to right, #2E8B57, #1E4D2B)";
-                } else if (data.temperatura >= 20 && data.temperatura <= 25) {
-                    document.body.style.background = "linear-gradient(to right, #6B8E23, #8B5E3C)";
-                } else {
-                    document.body.style.background = "linear-gradient(to right, #CD853F, #D2691E)";
-                }
-
-                // 📊 Actualizar gráficos
-                let tiempoActual = new Date().toLocaleTimeString();
-                if (temperaturaData.length >= maxPuntos) {
-                    temperaturaData.shift();
-                    humedadData.shift();
-                    tiempoData.shift();
-                }
+                // Actualizar datos para los gráficos
+                let ahora = new Date().toLocaleTimeString();
+                tiempoData.push(ahora);
                 temperaturaData.push(data.temperatura);
                 humedadData.push(data.humedad);
-                tiempoData.push(tiempoActual);
 
-                temperaturaChart.update();
-                humedadChart.update();
+                if (tiempoData.length > maxPuntos) {
+                    tiempoData.shift();
+                    temperaturaData.shift();
+                    humedadData.shift();
+                }
+
+                actualizarGraficos();
             })
-            .catch(error => console.error("Error:", error));
-        }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            let ctx1 = document.getElementById("grafico-temperatura").getContext("2d");
-            let ctx2 = document.getElementById("grafico-humedad").getContext("2d");
-
-            window.temperaturaChart = new Chart(ctx1, { type: "line", data: { labels: tiempoData, datasets: [{ label: "Temperatura (°C)", data: temperaturaData, borderColor: "red", fill: false }] } });
-            window.humedadChart = new Chart(ctx2, { type: "line", data: { labels: tiempoData, datasets: [{ label: "Humedad (%)", data: humedadData, borderColor: "blue", fill: false }] } });
-
-            setInterval(actualizarDatos, 3000);
-        });
-    </script>
-</body>
-</html>
+            .
+::contentReference[oaicite:0]{index=0}
+ 
